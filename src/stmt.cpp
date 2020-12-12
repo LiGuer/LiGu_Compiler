@@ -28,30 +28,38 @@ limitations under the License.
 		  | return [expr] ';'
 ******************************************************************************/
 #include "c.h"
-Tree* stmt();							//语句分析(主)
-Tree* stmtIf();							//for语句
-Tree* stmtFor();						//if语句
-Tree* stmtSwitch();						//switch语句
-Tree* stmtWhile();						//while语句
+Tree* stmt(int looplabel);											//语句分析(主)
+Tree* stmtIf(int newlable,int looplabel);							//if语句
+Tree* stmtFor(int newlable);										//for语句
+Tree* stmtSwitch(int newlable, int looplabel);						//switch语句
+Tree* stmtWhile(int newlable);										//while语句
 /*--------------------------------[ 语句分析(主) ]--------------------------------*/
-Tree* stmt()	
-{
+Tree* stmt(int looplabel) {
 	Tree* p = new Tree;
 	switch (token) {
-	case '{':	p = block(); break;
-	case BREAK:; break;
-	case CONTINUE:; break;
-	case FOR:	p = stmtFor(); break;
+	case '{':	p = block(looplabel); break;
+	case BREAK: {
+		p->op = BREAK;
+		p->u.v.i = looplabel + 1;
+		token = lex(lexBuffer);expect(';');
+	}; break;
+	case CONTINUE: {
+		p->op = BREAK;
+		p->u.v.i = looplabel;
+		token = lex(lexBuffer);expect(';');
+	}; break;
+	case FOR:	p = stmtFor(Sym_genLabel(2)); break;
+	case GOTO:; break;
 	case ID:	p = expr(); expect(';'); break;
-	case IF:	p = stmtIf(); break;
-	case SWITCH:p = stmtSwitch(); break;
-	case WHILE:	p = stmtWhile(); break;
+	case IF:	p = stmtIf(Sym_genLabel(1), looplabel); break;
+	case SWITCH:p = stmtSwitch(Sym_genLabel(1), looplabel); break;
+	case WHILE:	p = stmtWhile(Sym_genLabel(2)); break;
 	default:; break;
 	}
 	return p;
 }
 /*--------------------------------[ for语句 ]--------------------------------*/
-Tree* stmtFor() {
+Tree* stmtFor(int newlable) {
 	token = lex(lexBuffer);
 	expect('(');
 	Tree* p = new Tree;
@@ -60,7 +68,7 @@ Tree* stmtFor() {
 	p->kid[1] = new Tree;
 	p = p->kid[1];
 	p->op = WHILE;
-	p->u.v.i = Sym_genLabel(2);
+	p->u.v.i = newlable;
 	expect(';');
 	//
 	p->kid[0] = expr();
@@ -69,39 +77,39 @@ Tree* stmtFor() {
 	p = p->kid[1];
 	p->kid[1] = expr();
 	expect(')');
-	p->kid[0] = stmt();
+	p->kid[0] = stmt(newlable);
 	return root;
 }
 /*--------------------------------[ if语句 ]--------------------------------*/
 /*--------------------------------[ if语句 ]--------------------------------*/
-Tree* stmtIf() {
+Tree* stmtIf(int newlable, int looplabel) {
 	token = lex(lexBuffer);
 	Tree* p = new Tree;
 	p->op = IF;
-	p->u.v.i=Sym_genLabel(1);
+	p->u.v.i= newlable;
 	expect('(');
 	p->kid[0] = expr();
 	expect(')');
-	p->kid[1] = stmt();
-	//if (t == ELSE) {stmtElse();}
+	p->kid[1] = stmt(looplabel);
+	if (token == ELSE) {
+		token = lex(lexBuffer);
+	}
 	return p;
 }
-/*--------------------------------[ else语句 ]--------------------------------*/
-Tree* stmtElse() {}
 /*--------------------------------[ switch语句 ]--------------------------------*/
-Tree* stmtSwitch() {
+Tree* stmtSwitch(int newlable, int looplabel) {
 	Tree* p = new Tree;
 	return p;
 }
 /*--------------------------------[ while语句 ]--------------------------------*/
-Tree* stmtWhile() {
+Tree* stmtWhile(int newlable) {
 	token = lex(lexBuffer);
 	Tree* p = new Tree;
 	p->op = WHILE;
-	p->u.v.i = Sym_genLabel(2);
+	p->u.v.i = newlable;
 	expect('(');
 	p->kid[0] = expr();
 	expect(')');
-	p->kid[1] = stmt();
+	p->kid[1] = stmt(newlable);
 	return p;
 }

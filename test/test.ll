@@ -1,36 +1,3 @@
-# LiGu_Compiler
-## List
-* <c.h>
-* <token.h>     符号表
-* <lex.cpp>	    词法分析器
-* <parse.cpp>	语法分析器
-* <expr.cpp>	表达式__语法分析器
-* <decl.cpp>	声明__语法分析器
-* <stmt.cpp>	控制语句__语法分析器
-* <sym.cpp>	    符号表
-* <error.cpp>	报错
-* <RI.cpp>	    中间代码生成 (RI: LLVM)
-
-## Achievement
-* 变量声明
-* {} 代码块
-* int double... 类型
-* +-*/()%表达式
-* if 语句
-* while 语句
-* for 语句
-* break;continue;
-* // /**/注释
-* 转中间代码
-
-## Copyright
-The authors of this software are Christopher W. Fraser and David R. Hanson.  
-Copyright (c) 1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002 by AT&T, Christopher W. Fraser, and David R. Hanson.   
-Copyright (c) 2020 LiGuer.   
-All Rights Reserved.  
-
-## example
-```
 // Test LiGu's Compiler
 /* 2020-12 */
 {
@@ -86,7 +53,3 @@ store %11 *f64 %b
 store %12 *i32 %i
 goto label 3
 label 4:
-```
-
-## Reference
-[1] AT&T, Christopher W. Fraser, and David R. Hanson. 

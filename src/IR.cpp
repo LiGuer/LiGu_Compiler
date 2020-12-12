@@ -146,7 +146,8 @@ char* walkTree(Tree* p) {
 	else if (p->op < 18) { fprintf(fout,"%%%s = alloca %s%d, align %d\n", p->u.sym->name, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft; }
 	else if (p->op == '=') { fprintf(fout,"store %s *%s\n", childRight, childLeft); return childLeft; }
 	else if (p->op == IF) { fprintf(fout,"label %d: \n", p->u.v.i); }
-	else if (p->op == WHILE) { fprintf(fout,"goto label %d\n", p->u.v.i);	fprintf(fout,"label %d:\n", p->u.v.i + 1);}
+	else if (p->op == WHILE) { fprintf(fout, "goto label %d\n", p->u.v.i);	fprintf(fout, "label %d:\n", p->u.v.i + 1); }
+	else if (p->op == BREAK) { fprintf(fout, "goto label %d\n", p->u.v.i); }
 	else if (p->op == REAL) return double2String(p->u.v.d);
 	else if (p->op == NUM) return int2string(p->u.v.i);
 	else if (p->op == ID) {

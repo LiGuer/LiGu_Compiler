@@ -31,7 +31,7 @@ int lex(Value& lexBuffer);
 //---------------- parse.c ----------------
 extern int token;
 Tree* parse();
-Tree* block();
+Tree* block(int looplabel);
 //---------------- sym.c ----------------
 void Sym_insertGTable(Symbol* sym);
 Symbol* Sym_findID(const char* name);
@@ -41,9 +41,9 @@ Tree* decl();
 //---------------- expr.c ----------------
 Tree* expr();
 //---------------- stmt.c ----------------
-Tree* stmt();
+Tree* stmt(int looplabel);
 //---------------- error.c ----------------
-void error(const char err[], ...);
+void error(const char* err, ...);
 void expect(int tok);
 //---------------- IR.c ----------------
 void IRgen(Tree* p);

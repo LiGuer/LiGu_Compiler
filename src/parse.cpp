@@ -22,16 +22,16 @@ limitations under the License.
 #include "c.h"
 int token;
 Tree* parse();						//语法分析器(主)
-Tree* block();						//代码块
+Tree* block(int looplabel);						//代码块
 Tree* decls();						//声明块
-Tree* stmts();						//语句块
+Tree* stmts(int looplabel);						//语句块
 /*--------------------------------[ 语法分析器(主) ]--------------------------------*/
 Tree* parse(){
 	token = lex(lexBuffer);
 	Tree* tree = new Tree;
 	Tree* root = tree;
 	while (token == '{') {
-		Tree* p = block();
+		Tree* p = block(0);
 		tree->kid[0] = p;
 		tree->kid[1] = new Tree;
 		tree = tree->kid[1];
@@ -39,11 +39,11 @@ Tree* parse(){
 	return root;
 }
 /*--------------------------------[ 代码块 ]--------------------------------*/
-Tree* block() {
+Tree* block(int looplabel) {
 	expect('{');
 	Tree* root = new Tree;
 	root->kid[0] = decls();
-	root->kid[1] = stmts();
+	root->kid[1] = stmts(looplabel);
 	expect('}');
 	return root;
 }
@@ -60,11 +60,11 @@ Tree* decls() {
 	return root;
 }
 /*--------------------------------[ 语句块 ]--------------------------------*/
-Tree* stmts() {
+Tree* stmts(int looplabel) {
 	Tree* tree = new Tree;
 	Tree* root = tree;
 	while (token != '}') {
-		Tree* p = stmt();
+		Tree* p = stmt(looplabel);
 		tree->kid[0] = p;
 		tree->kid[1] = new Tree;
 		tree = tree->kid[1];
