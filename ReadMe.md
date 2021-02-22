@@ -1,19 +1,19 @@
 # LiGu_Compiler
 ## List
 Class:
-* <Compiler>	Compiler编译器
-* <SymbolTable>	符号表
-* <Lexical>	    词法分析器
-* <Parse>		语法分析器
-* <Expr>		表达式__语法分析器
-* <Decl>		声明__语法分析器
-* <Stmt>		控制语句__语法分析器
-* <Error>		报错
-* <RI>			中间代码生成器 (RI: LLVM)
+* \<Compiler\>	Compiler编译器
+* \<SymbolTable\>	符号表
+* \<Lexical\>	    词法分析器
+* \<Parse\>		语法分析器
+* \<Expr\>		表达式__语法分析器
+* \<Decl\>		声明__语法分析器
+* \<Stmt\>		控制语句__语法分析器
+* \<Error\>		报错
+* \<RI\>			中间代码生成器 (RI: LLVM)
 Other:
-* <Tree>		抽象语法树
-* <token.h>     符号
-* <main.cpp>	主函数
+* \<Tree\>		抽象语法树
+* \<token.h\>     符号
+* \<main.cpp\>	主函数
 
 ## Achievement
 * 变量声明
