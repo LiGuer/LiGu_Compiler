@@ -125,9 +125,9 @@ const char* OpName[] = {
 #define yy(a,b,c,d,e) c,
 #include "token.h"
 };
+#include"sym.h"
 class IR {
 public:
-	int idCur = 1;
 	FILE* fout;
 	/*--------------------------------[ IRÉú³É ]--------------------------------*/
 	void IRgen(Tree* p, const char* output) { 
@@ -137,51 +137,45 @@ public:
 	}
 	/*--------------------------------[ ±éÀúÊ÷ ]--------------------------------*/
 	char* walkTree(Tree* p) {
+		if (p == NULL)return NULL;
 		
 		char* childLeft = NULL, * childRight = NULL;
 		if (p->op == WHILE) { fprintf(fout, "\nlabel %d: \n", p->u.v.i); }
+
 		// Left
-		if (p->kid[0] != NULL) { childLeft = walkTree(p->kid[0]); }
-		if (p->op == IF) { fprintf(fout, "  ifFalse %s goto label %d\n", childLeft, p->u.v.i); }
-		else  if (p->op == WHILE) { fprintf(fout, "  ifFalse %s goto label %d\n", childLeft, p->u.v.i + 1); }
+		childLeft = walkTree(p->kid[0]);
+		if (p->op == IF) { fprintf(fout, "ifFalse %s goto label %d\n", childLeft, p->u.v.i); }
+		else  if (p->op == WHILE) { fprintf(fout, "ifFalse %s goto label %d\n", childLeft, p->u.v.i + 1); }
+
 		// Right
-		if (p->kid[1] != NULL) { childRight = walkTree(p->kid[1]); }
+		childRight = walkTree(p->kid[1]);
 		if (p->op == 0)return childLeft;
-		else if (p->op < 18) {
-			printf(" %%%s\n", p->u.sym->name);
-			fprintf(fout, "  %%%s = alloca %s%d, align %d\n",p->u.sym->name, OpName[p->u.sym->type->type],p->u.sym->type->size, p->u.sym->type->align); return childLeft; }
-		else if (p->op == '=') { fprintf(fout, "  store %s *%s\n", childRight, childLeft); return childLeft; }
+		else if (p->op < 18) {fprintf(fout, "#%d = alloca %s %d align %d\n", p->u.sym->label, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft;}
+		else if (p->op == '=') { fprintf(fout, "store %s *%s\n", childRight, childLeft); return childLeft; }
 		else if (p->op == IF) { fprintf(fout, "\nlabel %d: \n", p->u.v.i); }
-		else if (p->op == WHILE) { fprintf(fout, "  goto label %d\n", p->u.v.i);	fprintf(fout, "\nlabel %d:\n", p->u.v.i + 1); }
-		else if (p->op == BREAK) { fprintf(fout, "  goto label %d\n", p->u.v.i); }
+		else if (p->op == WHILE) { fprintf(fout, "goto label %d\n", p->u.v.i);	fprintf(fout, "\nlabel %d:\n", p->u.v.i + 1); }
+		else if (p->op == BREAK) { fprintf(fout, "goto label %d\n", p->u.v.i); }
 		else if (p->op == REAL) return double2String(p->u.v.d);
 		else if (p->op == NUM) return int2string(p->u.v.i);
 		else if (p->op == ID) {
 			char* t = (char*)malloc(10 * sizeof(char));
 			int cur = 0;
-			if (p->u.sym->type->type == INT)t[cur++] = 'i';
-			else if (p->u.sym->type->type == FLOAT)t[cur++] = 'f';
-			if (p->u.sym->type->size != 0) {
-				char* size = int2string(p->u.sym->type->size);
-				int sizecur = 0;
-				while (size[sizecur] != '\0')t[cur++] = size[sizecur++];
-				t[cur++] = ' ';
-			}
-			t[cur++] = '%';
-			int namecur = 0;
-			while (p->u.sym->name[namecur] != '\0')t[cur++] = p->u.sym->name[namecur++];
+			t[cur++] = '#';
+			char* ts = int2string(p->u.sym->label);
+			int tscur = 0;
+			while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
 			t[cur++] = '\0';
 			return t;
 		}
 		else {
 			char* t = (char*)malloc(10 * sizeof(char));
 			int cur = 0;
-			t[cur++] = '%';
-			char* ts = int2string(idCur++);
+			t[cur++] = '#';
+			char* ts = int2string(Sym_genLabel(1));
 			int tscur = 0;
 			while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
 			t[cur++] = '\0';
-			fprintf(fout, "  %s = %s %s %s\n", t, OpName[p->op], childLeft, childRight);
+			fprintf(fout, "%s = %s %s %s\n", t, OpName[p->op], childLeft, childRight);
 			return t;
 		}
 	}

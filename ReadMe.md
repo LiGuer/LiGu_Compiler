@@ -37,9 +37,10 @@ All Rights Reserved.
 ```
 // Test LiGu's Compiler
 /* 2020-12 */
+int a;
 {
-	int a;
-	double b;
+	int64 a;
+	float64 b;
 	char c;
 	float d;
 	int i;
@@ -52,44 +53,53 @@ All Rights Reserved.
 		b = b + i;
 	}
 }
-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-%a = alloca int32, align 0
-%b = alloca float64, align 0
-%c = alloca int8, align 0
-%d = alloca float32, align 0
-%i = alloca int32, align 0
-label 1: 
-%1 = < i8 %c i32 %a
-ifFalse %1 goto label 2
-%2 = + f64 %b i32 %a
-store %2 *i8 %c
-goto label 1
-label 2:
-store 0 *i32 %i
-label 3: 
-%3 = < i32 %i 5
-ifFalse %3 goto label 4
-%4 = / i32 %a 27.710000
-%5 = * f64 %b 0.120000
-%6 = + %4 %5
-%7 = - %6 2
-store %7 *i32 %a
-%8 = > i32 %a f32 %d
-ifFalse %8 goto label 5
-goto label 4
-label 5: 
-%9 = + i8 %c i32 %a
-store %9 *i8 %c
-%10 = > i8 %c f64 %b
-ifFalse %10 goto label 6
-goto label 3
-label 6: 
-%11 = + f64 %b i32 %i
-store %11 *f64 %b
-%12 = + i32 %i 1
-store %12 *i32 %i
-goto label 3
-label 4:
+
+======================================================
+#1 = alloca int 32 align 0
+#2 = alloca int 64 align 0
+#3 = alloca float 64 align 0
+#4 = alloca int 8 align 0
+#5 = alloca float 32 align 0
+#6 = alloca int 32 align 0
+
+label 7: 
+#13 = < #4 #2
+ifFalse #13 goto label 8
+#14 = + #3 #2
+store #14 *#4
+goto label 7
+
+label 8:
+store 0 *#6
+
+label 9: 
+#15 = < #6 5
+ifFalse #15 goto label 10
+#16 = / #2 27.710000
+#17 = * #3 0.120000
+#18 = + #16 #17
+#19 = - #18 2
+store #19 *#2
+#20 = > #2 #5
+ifFalse #20 goto label 11
+goto label 10
+
+label 11: 
+#21 = + #4 #2
+store #21 *#4
+#22 = > #4 #3
+ifFalse #22 goto label 12
+goto label 9
+
+label 12: 
+#23 = + #3 #6
+store #23 *#3
+#24 = + #6 1
+store #24 *#6
+goto label 9
+
+label 10:
+
 ```
 
 ## Reference

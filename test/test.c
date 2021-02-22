@@ -1,8 +1,9 @@
 // Test LiGu's Compiler
 /* 2020-12 */
+int a;
 {
-	int a;
-	double b;
+	int64 a;
+	float64 b;
 	char c;
 	float d;
 	int i;

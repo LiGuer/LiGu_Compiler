@@ -74,12 +74,12 @@ public:
 	Tree* expr() {
 		Tree* p = exprAssign();
 		if (lexical->token == ',') {
-			Tree* temp = new Tree;
-			temp->kid[0] = p; p = temp;				//更新树
+			Tree* tmp = new Tree;
+			tmp->kid[0] = p; p = tmp;				//更新树
 			p->op = lexical->token;
 
 			lexical->getToken();					//更新单词
-			temp->kid[1] = expr();
+			tmp->kid[1] = expr();
 		}
 		return p;
 	}
@@ -87,12 +87,12 @@ public:
 	Tree* exprAssign() {
 		Tree* p = exprBinary(4);
 		if (lexical->token == '=') {
-			Tree* temp = new Tree;
-			temp->kid[0] = p; p = temp;
+			Tree* tmp = new Tree;
+			tmp->kid[0] = p; p = tmp;
 			p->op = lexical->token;
 
 			lexical->getToken();
-			temp->kid[1] = exprAssign();
+			tmp->kid[1] = exprAssign();
 		}
 		return p;
 	}
@@ -101,12 +101,12 @@ public:
 		Tree* p = exprUnary();
 		for (int prt = prio[lexical->token]; prt >= pr; prt--) {
 			while (prio[lexical->token] == prt) {
-				Tree* temp = new Tree;
-				temp->kid[0] = p; p = temp;
+				Tree* tmp = new Tree;
+				tmp->kid[0] = p; p = tmp;
 				p->op = lexical->token;
 
 				lexical->getToken();
-				temp->kid[1] = exprBinary(prt + 1);
+				tmp->kid[1] = exprBinary(prt + 1);
 			}
 		}return p;
 	}

@@ -38,7 +38,7 @@ public:
 		if (ty == NULL)return NULL;
 		if (lexical->token != ID)error->error("Decl Not Find Identifier!");
 		// Symbol
-		Symbol id{ lexical->buffer.s, ty };
+		Symbol id{ lexical->buffer.s, ty ,Sym_genLabel(1) };
 		if(SymTablePos->insert(id) == false)error->error("ID had exsited!");
 		// Tree
 		Tree* p = new Tree;

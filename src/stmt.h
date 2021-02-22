@@ -15,6 +15,7 @@ limitations under the License.
 *                    statement Analysis 控制语句__语法分析器
 -------------------------------------------------------------------------------
 *	[文法]:
+	stmts -> stmts stmt | ε
 	stmt -> expr ';'		
 		  | block	= '{' stmts '}'	
 	  	  | if '(' bool ')' stmt	
@@ -46,7 +47,7 @@ public:
 		expr = new Expr(lexical, error);
 		decl = new Decl(lexical, error);
 	}
-
+	/*--------------------------------[ stmts ]--------------------------------*/
 	Tree* stmts(int looplabel) {
 		Tree* tree = new Tree;
 		Tree* root = tree;
@@ -58,7 +59,7 @@ public:
 		}
 		return root;
 	}
-	/*--------------------------------[ 语句分析(主) ]--------------------------------*/
+	/*--------------------------------[ 语句分析 ]--------------------------------*/
 	Tree* stmt(int looplabel) {
 		Tree* p = new Tree;
 		switch (lexical->token) {

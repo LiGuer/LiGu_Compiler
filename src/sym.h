@@ -40,7 +40,7 @@ union Value {
 };
 class Symbol { 
 public:
-	char* name = NULL;	Type* type = NULL;
+	char* name = NULL;	Type* type = NULL; int label = 0;
 };
 
 class SymbolTable {
