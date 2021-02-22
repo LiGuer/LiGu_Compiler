@@ -12,5 +12,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 /******************************************************************************
-*                    Dag �����޻�ͼ
+*                    parse Analysis 语法分析器
+*	[文法]:
+	program -> stmt
 ******************************************************************************/
+#ifndef PARSE_H
+#define PARSE_H
+#include "lex.h"
+#include "stmt.h"
+#include "decl.h"
+#include "error.h"
+class Parse {
+public:
+	Lexical* lexical;
+	Error* error;
+	Stmt* stmt;
+	Parse(Lexical* _lexical, Error* _error) {
+		lexical = _lexical; error = _error;
+		stmt = new Stmt(lexical, error);
+	}
+	/*--------------------------------[ 语法分析器(主) ]--------------------------------*/
+	Tree* parse() {
+		lexical->getToken();
+		return stmt->stmts(0);
+	}
+};
+#endif

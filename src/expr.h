@@ -54,95 +54,102 @@ limitations under the License.
 	(所以,优化)
 		expr(n)-> prim [{ op(k) expr(k+1) }{ op(k-1) expr(k) }...{ op(n) expr(n+1) }]
 ******************************************************************************/
-#include "c.h"
-#define MAXPRIO 13
+#ifndef EXPR_H
+#define EXPR_H
+#include "lex.h"
+#include "error.h"
+#include "dag.h"
 int prio[] = {									//操作符优先级
-#define xx(a,b,c,d,e) d,
-#define yy(a,b,c,d,e) d,
-#include "token.h"
+	#define xx(a,b,c,d,e) d,
+	#define yy(a,b,c,d,e) d,
+	#include "token.h"
 };
-Tree* expr();									//表达式(主)
-Tree* exprAssign();								//赋值表达式
-Tree* exprBinary(int pr);						//二元表达式
-Tree* exprUnary();								//一元表达式
-Tree* exprPrimary();							//基础表达式
-/*--------------------------------[ 表达式(主) ]--------------------------------*/
-Tree* expr() {
-	Tree* p = exprAssign();
-	if (token == ',') {
-		Tree* temp = new Tree;
-		temp->kid[0] = p; p = temp;				//更新树
-		p->op = token;
+class Expr {
+public:
+	const int MAXPRIO = 13;
+	Lexical* lexical;
+	Error* error;
+	Expr(Lexical* _lexical, Error* _error) { lexical = _lexical; error = _error; }
+	/*--------------------------------[ 表达式(主) ]--------------------------------*/
+	Tree* expr() {
+		Tree* p = exprAssign();
+		if (lexical->token == ',') {
+			Tree* temp = new Tree;
+			temp->kid[0] = p; p = temp;				//更新树
+			p->op = lexical->token;
 
-		token = lex(lexBuffer);					//更新单词
-		temp->kid[1] = expr();
+			lexical->getToken();					//更新单词
+			temp->kid[1] = expr();
+		}
+		return p;
 	}
-	return p;
-}
-/*--------------------------------[ 赋值表达式 ]--------------------------------*/
-Tree* exprAssign() {
-	Tree* p = exprBinary(4);
-	if (token == '=') {
-		Tree* temp = new Tree;
-		temp->kid[0] = p; p = temp;
-		p->op = token;
-
-		token = lex(lexBuffer);
-		temp->kid[1] = exprAssign();
-	}
-	return p;
-}
-/*--------------------------------[ 二元表达式 ]--------------------------------*/
-Tree* exprBinary(int pr) {
-	Tree* p = exprUnary();
-	for (int prt = prio[token]; prt >= pr; prt--) {
-		while (prio[token] == prt) {
+	/*--------------------------------[ 赋值表达式 ]--------------------------------*/
+	Tree* exprAssign() {
+		Tree* p = exprBinary(4);
+		if (lexical->token == '=') {
 			Tree* temp = new Tree;
 			temp->kid[0] = p; p = temp;
-			p->op = token;
+			p->op = lexical->token;
 
-			token = lex(lexBuffer);
-			temp->kid[1] = exprBinary(prt + 1);
+			lexical->getToken();
+			temp->kid[1] = exprAssign();
 		}
-	}return p;
-}
-/*--------------------------------[ 一元表达式 ]--------------------------------*/
-Tree* exprUnary() {
-	Tree* p = new Tree;
-	switch (token) {
-	case '~': case '!': case '-': case ADDONE: case SUBONE: 
-		p->op = token; token = lex(lexBuffer); p->kid[0] = exprUnary();  break;
-	case '*': {; }
-	case '&': {; }
-	case '(': {; }
-	default: delete p; p = exprPrimary();
+		return p;
 	}
-	return p;
-}
-/*--------------------------------[ 基础表达式 ]--------------------------------*/
-Tree* exprPrimary() {
-	Tree* p = new Tree;
-	switch (token) {
-	case ID: {									//变量
-		p->op = token;
-		p->u.sym = Sym_findID(lexBuffer.s);		//创建符号结构体;	符号表搜寻目标符号;	树节点值存储该符号
-		if (p->u.sym == NULL)
-			error("Undeclared Identifier!");
-		break;
+	/*--------------------------------[ 二元表达式 ]--------------------------------*/
+	Tree* exprBinary(int pr) {
+		Tree* p = exprUnary();
+		for (int prt = prio[lexical->token]; prt >= pr; prt--) {
+			while (prio[lexical->token] == prt) {
+				Tree* temp = new Tree;
+				temp->kid[0] = p; p = temp;
+				p->op = lexical->token;
+
+				lexical->getToken();
+				temp->kid[1] = exprBinary(prt + 1);
+			}
+		}return p;
 	}
-	case NUM:case REAL:							//常数
-		p->op = token;
-		p->u.v = lexBuffer;
-		break;
-	case STR: {; }
-		break;
-	case '(':									//括号
-		token = lex(lexBuffer);
-		delete p;
-		p = exprBinary(4);
-		expect(')');
-		break;
+	/*--------------------------------[ 一元表达式 ]--------------------------------*/
+	Tree* exprUnary() {
+		Tree* p = new Tree;
+		switch (lexical->token) {
+		case '~': case '!': case '-': case ADDONE: case SUBONE:
+			p->op = lexical->token; lexical->getToken(); p->kid[0] = exprUnary();  break;
+		case '*': {; }
+		case '&': {; }
+		case '(': {; }
+		default: delete p; p = exprPrimary();
+		}
+		return p;
 	}
-	token = lex(lexBuffer);
-	return p;
-}
+	/*--------------------------------[ 基础表达式 ]--------------------------------*/
+	Tree* exprPrimary() {
+		Tree* p = new Tree;
+		switch (lexical->token) {
+		case ID: {									//变量
+			p->op = lexical->token;
+			p->u.sym = SymTablePos->searchAllTable(lexical->buffer.s);		//创建符号结构体;	符号表搜寻目标符号;	树节点值存储该符号
+			if (p->u.sym == NULL)
+				error->error("Undeclared Identifier!");
+			break;
+		}
+		case NUM:case REAL:							//常数
+			p->op = lexical->token;
+			p->u.v = lexical->buffer;
+			break;
+		case STR: {; }
+				break;
+		case '(':									//括号
+			lexical->getToken();
+			delete p;
+			p = exprBinary(4);
+			error->expect(')');
+			break;
+		}
+		lexical->getToken();
+		return p;
+	}
+
+};
+#endif

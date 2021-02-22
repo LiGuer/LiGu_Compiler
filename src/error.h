@@ -12,23 +12,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 /******************************************************************************
-*                    error 报错
+*                    Error 报错
 ******************************************************************************/
-#include "c.h"
-int errcnt = 0;
-int errlimit = 1;
-
-void error(const char *err, ...) { 
-	printf("error%d: %s\n", errcnt, err);
-	if (errcnt++ >= errlimit) {
-		printf("Too many errors\n");
-		exit(1);
+#ifndef ERROR_H
+#define ERROR_H
+#include "lex.h"
+class Error {
+public:
+	int errorNum = 0;
+	int maxErrorNum = 10;
+	Lexical* lexical;
+	Error(Lexical* _lexical) { lexical = _lexical; }
+	// error
+	void error(const char* err, ...) {
+		printf("error %d: %s in %d.\n", errorNum, err, lexical->codePos - lexical->initialCodePos);
+		if (errorNum++ >= maxErrorNum) {
+			printf("Too many errors\n");
+			exit(1);
+		}
 	}
-}
-void expect(int tok) {
-	if (token == tok) token = lex(lexBuffer);
-	else {
-		error("syntax error!");
-		printf(" expecting `%c'\n", tok);
+	// expect
+	void expect(int tok) {
+		if (lexical->token == tok) lexical->getToken();
+		else {
+			error("syntax error!");
+			printf("	expecting '%c'\n", tok);
+		}
 	}
-}
+};
+#endif

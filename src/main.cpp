@@ -11,25 +11,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "c.h"
+#include "compiler.h"
 #include <string.h>
-/*::::::::::main->主函数::::::::::*/
-char* codePos, *codePosSource;
-FILE* fout;
-void init(char url[]) {
+char* init(char url[]) {
 	FILE* fp = fopen(url, "r");
 	// File Size
 	fseek(fp, 0, SEEK_END);
 	int size = ftell(fp);
 	rewind(fp);
 	// Save File's Code chars
-	codePosSource = (char*)malloc(sizeof(char) * (size + 1));
+	char* codePosSource = (char*)malloc(sizeof(char) * (size + 1));
 	memset(codePosSource, 0, sizeof(char) * (size + 1));
 	fread(codePosSource, size, 1, (FILE*)fp);
 	codePosSource[size] = EOI;
-	codePos = codePosSource;
-	fprintf(fout,"%s\n:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n", codePosSource);
 	fclose(fp);
+	return codePosSource;
 }
 int ArgPos(char* str, int argc, char** argv) {
 	for (int a = 1; a < argc; a++) if (!strcmp(str, argv[a])) {
@@ -39,10 +35,11 @@ int ArgPos(char* str, int argc, char** argv) {
 	return -1;
 }
 int main(int argc, char* argv[]) {
-	char inputUrl[1000], outputUrl[1000];
+	char inputUrl[1000] = "D:/test.c", outputUrl[1000]= "D:/test.ll";
+	/*
+	// input
 	if (argc == 1) {
-		printf("LiGu_C-Compiler\n\n");
-		printf("Options:\n");
+		printf("LiGu_C-Compiler\n\nOptions:\n");
 		printf("\t-InputUrl <file>\n");
 		printf("\t-OutputUrl <file>\n");
 		return 0;
@@ -50,12 +47,8 @@ int main(int argc, char* argv[]) {
 	int i = 0;
 	if ((i = ArgPos((char*)"-InputUrl", argc, argv)) > 0) strcpy(inputUrl, argv[i + 1]);
 	if ((i = ArgPos((char*)"-OutputUrl", argc, argv)) > 0) strcpy(outputUrl, argv[i + 1]);
-	fout = fopen(outputUrl, "w+");
-	init(inputUrl);
-	// begin
-	Tree* p = parse();
-	printf("IR gen now\n");
-	IRgen(p);
-	fclose(fout);
-	free(codePosSource);
+	// begin*/
+	Compiler compiler(init(inputUrl));
+	compiler.compiler(outputUrl);
 }
+

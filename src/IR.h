@@ -120,86 +120,93 @@ Other Operations
 	catchpad											;异常处理机制
 	cleanuppad											;异常处理机制
 ******************************************************************************/
-#include "c.h"
 const char* OpName[] = {
 #define xx(a,b,c,d,e) c,
 #define yy(a,b,c,d,e) c,
 #include "token.h"
 };
-int idCur = 1;
-char* int2string(int a);
-char* double2String(double a);
-char* walkTree(Tree* p);
-/*--------------------------------[ IR生成 ]--------------------------------*/
-void IRgen(Tree* p) { walkTree(p); }
-/*--------------------------------[ 遍历树 ]--------------------------------*/
-char* walkTree(Tree* p) {
-	char* childLeft = NULL, * childRight = NULL;
-	if (p->op == WHILE) {fprintf(fout,"label %d: \n", p->u.v.i);}
-	// Left
-	if (p->kid[0] != NULL) { childLeft = walkTree(p->kid[0]);}
-	if (p->op == IF) {fprintf(fout,"ifFalse %s goto label %d\n", childLeft, p->u.v.i);}
-	else  if (p->op == WHILE) {fprintf(fout,"ifFalse %s goto label %d\n", childLeft, p->u.v.i + 1);}
-	// Right
-	if (p->kid[1] != NULL) { childRight = walkTree(p->kid[1]); }
-	if (p->op == 0)return childLeft;
-	else if (p->op < 18) { fprintf(fout,"%%%s = alloca %s%d, align %d\n", p->u.sym->name, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft; }
-	else if (p->op == '=') { fprintf(fout,"store %s *%s\n", childRight, childLeft); return childLeft; }
-	else if (p->op == IF) { fprintf(fout,"label %d: \n", p->u.v.i); }
-	else if (p->op == WHILE) { fprintf(fout, "goto label %d\n", p->u.v.i);	fprintf(fout, "label %d:\n", p->u.v.i + 1); }
-	else if (p->op == BREAK) { fprintf(fout, "goto label %d\n", p->u.v.i); }
-	else if (p->op == REAL) return double2String(p->u.v.d);
-	else if (p->op == NUM) return int2string(p->u.v.i);
-	else if (p->op == ID) {
-		char* t = (char*)malloc(10 * sizeof(char));
-		int cur = 0;
-		if (p->u.sym->type->type == INT)t[cur++] = 'i';
-		else if (p->u.sym->type->type == FLOAT)t[cur++] = 'f';
-		if (p->u.sym->type->size != 0) {
-			char* size = int2string(p->u.sym->type->size);
-			int sizecur = 0;
-			while (size[sizecur] != '\0')t[cur++] = size[sizecur++];
-			t[cur++] = ' ';
+class IR {
+public:
+	int idCur = 1;
+	FILE* fout;
+	/*--------------------------------[ IR生成 ]--------------------------------*/
+	void IRgen(Tree* p, const char* output) { 
+		fout = fopen(output, "w+");
+		walkTree(p);
+		fclose(fout);
+	}
+	/*--------------------------------[ 遍历树 ]--------------------------------*/
+	char* walkTree(Tree* p) {
+		
+		char* childLeft = NULL, * childRight = NULL;
+		if (p->op == WHILE) { fprintf(fout, "\nlabel %d: \n", p->u.v.i); }
+		// Left
+		if (p->kid[0] != NULL) { childLeft = walkTree(p->kid[0]); }
+		if (p->op == IF) { fprintf(fout, "  ifFalse %s goto label %d\n", childLeft, p->u.v.i); }
+		else  if (p->op == WHILE) { fprintf(fout, "  ifFalse %s goto label %d\n", childLeft, p->u.v.i + 1); }
+		// Right
+		if (p->kid[1] != NULL) { childRight = walkTree(p->kid[1]); }
+		if (p->op == 0)return childLeft;
+		else if (p->op < 18) {
+			printf(" %%%s\n", p->u.sym->name);
+			fprintf(fout, "  %%%s = alloca %s%d, align %d\n",p->u.sym->name, OpName[p->u.sym->type->type],p->u.sym->type->size, p->u.sym->type->align); return childLeft; }
+		else if (p->op == '=') { fprintf(fout, "  store %s *%s\n", childRight, childLeft); return childLeft; }
+		else if (p->op == IF) { fprintf(fout, "\nlabel %d: \n", p->u.v.i); }
+		else if (p->op == WHILE) { fprintf(fout, "  goto label %d\n", p->u.v.i);	fprintf(fout, "\nlabel %d:\n", p->u.v.i + 1); }
+		else if (p->op == BREAK) { fprintf(fout, "  goto label %d\n", p->u.v.i); }
+		else if (p->op == REAL) return double2String(p->u.v.d);
+		else if (p->op == NUM) return int2string(p->u.v.i);
+		else if (p->op == ID) {
+			char* t = (char*)malloc(10 * sizeof(char));
+			int cur = 0;
+			if (p->u.sym->type->type == INT)t[cur++] = 'i';
+			else if (p->u.sym->type->type == FLOAT)t[cur++] = 'f';
+			if (p->u.sym->type->size != 0) {
+				char* size = int2string(p->u.sym->type->size);
+				int sizecur = 0;
+				while (size[sizecur] != '\0')t[cur++] = size[sizecur++];
+				t[cur++] = ' ';
+			}
+			t[cur++] = '%';
+			int namecur = 0;
+			while (p->u.sym->name[namecur] != '\0')t[cur++] = p->u.sym->name[namecur++];
+			t[cur++] = '\0';
+			return t;
 		}
-		t[cur++] = '%';
-		int namecur = 0;
-		while (p->u.sym->name[namecur] != '\0')t[cur++] = p->u.sym->name[namecur++];
-		t[cur++] = '\0';
-		return t;
+		else {
+			char* t = (char*)malloc(10 * sizeof(char));
+			int cur = 0;
+			t[cur++] = '%';
+			char* ts = int2string(idCur++);
+			int tscur = 0;
+			while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
+			t[cur++] = '\0';
+			fprintf(fout, "  %s = %s %s %s\n", t, OpName[p->op], childLeft, childRight);
+			return t;
+		}
 	}
-	else {
-		char* t = (char*)malloc(10 * sizeof(char));
+	char* int2string(int n)
+	{
+		char* t = (char*)malloc(100 * sizeof(char));
+		if (n == 0)return t = (char*)"0\0";
 		int cur = 0;
-		t[cur++] = '%';
-		char* ts = int2string(idCur++);
-		int tscur = 0;
-		while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
-		t[cur++] = '\0';
-		fprintf(fout,"%s = %s %s %s\n", t, OpName[p->op], childLeft, childRight);
+		while (n) {
+			t[cur++] = n % 10 + '0';
+			n /= 10;
+		}
+		for (int i = 0; i < cur / 2; i++) {
+			char temp = t[i];
+			t[i] = t[cur - i - 1];
+			t[cur - i - 1] = temp;
+		}
+		t[cur] = '\0';
 		return t;
 	}
-}
-char* int2string(int n)
-{
-	char* t = (char*)malloc(100 * sizeof(char));
-	if (n == 0)return t = (char*)"0\0";
-	int cur = 0;
-	while (n) {
-		t[cur++] = n % 10 + '0';
-		n /= 10;
+	char* double2String(double a) {
+		std::string str = std::to_string(a);
+		char* t = (char*)malloc(sizeof(char) * (str.length() + 1));
+		for (int i = 0; i < str.length(); i++)t[i] = str[i];
+		t[str.length()] = '\0';
+		return t;
 	}
-	for (int i = 0; i < cur / 2; i++) {
-		char temp = t[i];
-		t[i] = t[cur - i - 1];
-		t[cur - i - 1] = temp;
-	}
-	t[cur] = '\0';
-	return t;
-}
-char* double2String(double a) {
-	std::string str = std::to_string(a);
-	char* t = (char*)malloc(sizeof(char) * (str.length() + 1));
-	for (int i = 0; i < str.length(); i++)t[i] = str[i];
-	t[str.length()] = '\0';
-	return t;
-}
+};

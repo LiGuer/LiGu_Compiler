@@ -11,34 +11,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "c.h"
-/*::::::::::sym->符号表::::::::::*/
-enum { CONSTANTS = 1, LABELS, GLOBAL, PARAM, LOCAL };//作用域
-int cur = 0;
-Table GlobalTable{ GLOBAL };
-void Sym_insertGTable(Symbol* sym) {		//插入_全局符号表
-	if (GlobalTable.sym[0] == NULL) {
-		GlobalTable.sym[0] = sym;
-		GlobalTable.sym[0];
-		return;
+#ifndef COMPILER_H
+#define COMPILER_H
+#include<stdio.h>
+#include<stdlib.h>
+#include<string>
+#include"lex.h"
+#include"parse.h"
+#include"error.h"
+#include"IR.h"
+class Compiler {
+public:
+	Error* error;
+	Lexical* lexical;
+	Parse* parse;
+	IR* ir;
+
+	Compiler(char* codePos){
+		lexical = new Lexical(codePos);
+		error = new Error(lexical);
+		parse = new Parse(lexical, error);
+		ir = new IR;
 	}
-	Symbol* temp = GlobalTable.sym[0];
-	while (temp->next != NULL) {
-		temp = temp->next;
+	void compiler(char* output) {
+		Tree* p = parse->parse();
+		printf("\nGen IR now\n");
+		ir->IRgen(p, output);
 	}
-	temp->next = sym;
-}
-Symbol* Sym_findID(const char* name) {		//查找_全局符号表
-	Symbol* temp = GlobalTable.sym[0];
-	while (temp != NULL) {
-		if (*temp->name == *name) {
-			return temp;
-		}
-		temp = temp->next;
-	}return NULL;
-}
-int Sym_genLabel(int n) {				//生成跳转点标号
-	static int label = 1;
-	label += n;
-	return label - n;
-}
+};
+#endif
