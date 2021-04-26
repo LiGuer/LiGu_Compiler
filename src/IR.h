@@ -44,7 +44,7 @@ public:
 		// Right
 		childRight = walkTree(p->kid[1]);
 		if (p->op == 0)return childLeft;
-		else if (p->op < 18) {fprintf(fout, "ALLOC #%d %s %d ALIGN %d\n", p->u.sym->label, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft;}
+		else if (p->op < 18) {fprintf(fout, "#%d %s ALLOC %d ALIGN %d\n", p->u.sym->label, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft;}
 		else if (p->op == '=') { fprintf(fout, "STORE %s *%s\n", childRight, childLeft); return childLeft; }
 		else if (p->op == IF) { fprintf(fout, "\nlabel%d: \n", p->u.v.i); }
 		else if (p->op == WHILE) { fprintf(fout, "JMP label%d\n", p->u.v.i);	fprintf(fout, "\nlabel%d:\n", p->u.v.i + 1); }

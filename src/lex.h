@@ -15,6 +15,7 @@ limitations under the License.
 *                    Lexical Analysis 词法分析器
 *	[词]:
 		[1] 空格  [2] 0 - 9  [3] 运算符  [4] A - Z
+*	[算法]: 有限状态机 (基于switch-case实现)
 ******************************************************************************/
 #ifndef LEX_H
 #define LEX_H
@@ -29,15 +30,16 @@ public:
 	char token;
 	Value buffer;
 	char* codePos, *initialCodePos;
-	/*---------------- 基础函数 ----------------*/
+	/*---------------- 构造/析构函数 ----------------*/
 	Lexical(char* _codePos) {
 		codePos = _codePos; initialCodePos = codePos;
 	}
-	// 数字、a-z大小写
+	/*---------------- 判断数字、a-z大小写 ----------------*/
 	inline static bool judgeCharacter(char c) {
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) return false;
 		return true;
 	}
+	/*---------------- 判断指令 ----------------*/
 	inline static bool CodeCmp(const char* code, char*& data) {
 		int index = 0;
 		while (code[index] && code[index] == data[index - 1]) { index++; }
@@ -46,12 +48,9 @@ public:
 		}
 		return false;
 	}
-	// 分析下一词
-	char getToken() {
-		token = lexicalAnalysis();
-		return token;
-	}
-	// 词法分析
+	/*---------------- 分析下一词 ----------------*/
+	char getToken() { return token = lexicalAnalysis(); }
+	/*---------------- 词法分析 ----------------*/
 	char lexicalAnalysis() {
 		while (true) {
 			switch (*codePos++) {
