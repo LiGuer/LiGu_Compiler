@@ -60,8 +60,8 @@ limitations under the License.
 #include "error.h"
 #include "dag.h"
 int prio[] = {									//操作符优先级
-	#define xx(a,b,c,d,e) d,
-	#define yy(a,b,c,d,e) d,
+	#define xx(a,b,c,d,e,f) d,
+	#define yy(a,b,c,d,e,f) d,
 	#include "token.h"
 };
 class Expr {

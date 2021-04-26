@@ -15,8 +15,8 @@ limitations under the License.
 *						IR 中间代码生成
 ******************************************************************************/
 const char* OpName[] = {
-#define xx(a,b,c,d,e) c,
-#define yy(a,b,c,d,e) c,
+#define xx(a,b,c,d,e,f) f,
+#define yy(a,b,c,d,e,f) f,
 #include "token.h"
 };
 #include"sym.h"
@@ -38,17 +38,17 @@ public:
 
 		// Left
 		childLeft = walkTree(p->kid[0]);
-		if (p->op == IF) { fprintf(fout, "JMPFalse %s label%d\n", childLeft, p->u.v.i); }
-		else  if (p->op == WHILE) { fprintf(fout, "JMPFalse %s label%d\n", childLeft, p->u.v.i + 1); }
+		if (p->op == IF) { fprintf(fout, "JMPFalse\t%s label%d\n", childLeft, p->u.v.i); }
+		else  if (p->op == WHILE) { fprintf(fout, "JMPFalse\t%s label%d\n", childLeft, p->u.v.i + 1); }
 
 		// Right
 		childRight = walkTree(p->kid[1]);
 		if (p->op == 0)return childLeft;
-		else if (p->op < 18) {fprintf(fout, "#%d %s ALLOC %d ALIGN %d\n", p->u.sym->label, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft;}
-		else if (p->op == '=') { fprintf(fout, "STORE %s *%s\n", childRight, childLeft); return childLeft; }
+		else if (p->op < 18) {fprintf(fout, "#%d\t%s ALLOC %d ALIGN %d\n", p->u.sym->label, OpName[p->u.sym->type->type], p->u.sym->type->size, p->u.sym->type->align); return childLeft;}
+		else if (p->op == '=') { fprintf(fout, "%s\t%s *%s\n", OpName[p->op],childRight, childLeft); return childLeft; }
 		else if (p->op == IF) { fprintf(fout, "\nlabel%d: \n", p->u.v.i); }
-		else if (p->op == WHILE) { fprintf(fout, "JMP label%d\n", p->u.v.i);	fprintf(fout, "\nlabel%d:\n", p->u.v.i + 1); }
-		else if (p->op == BREAK) { fprintf(fout, "JMP label%d\n", p->u.v.i); }
+		else if (p->op == WHILE) { fprintf(fout, "JMP\tlabel%d\n", p->u.v.i);	fprintf(fout, "\nlabel%d:\n", p->u.v.i + 1); }
+		else if (p->op == BREAK) { fprintf(fout, "JMP\tlabel%d\n", p->u.v.i); }
 		else if (p->op == REAL) return double2String(p->u.v.d);
 		else if (p->op == NUM) return int2string(p->u.v.i);
 		else if (p->op == ID) {
@@ -57,8 +57,7 @@ public:
 			t[cur++] = '#';
 			char* ts = int2string(p->u.sym->label);
 			int tscur = 0;
-			while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
-			t[cur++] = '\0';
+			while (ts[tscur] != '\0')t[cur++] = ts[tscur++]; t[cur++] = '\0';
 			return t;
 		}
 		else {
@@ -67,9 +66,9 @@ public:
 			t[cur++] = '#';
 			char* ts = int2string(Sym_genLabel(1));
 			int tscur = 0;
-			while (ts[tscur] != '\0')t[cur++] = ts[tscur++];
-			t[cur++] = '\0';
-			fprintf(fout, "%s = %s %s %s\n", t, OpName[p->op], childLeft, childRight);
+			while (ts[tscur] != '\0')t[cur++] = ts[tscur++]; t[cur++] = '\0';
+			fprintf(fout, "MOV\t\t%s %s\n", t, childLeft);
+			fprintf(fout, "%s\t\t%s %s\n", OpName[p->op], t, childRight);
 			return t;
 		}
 	}

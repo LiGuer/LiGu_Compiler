@@ -1,19 +1,19 @@
 # LiGu_Compiler
-## List
+## Codes List
 Class:
-* \<Compiler\>	Compiler编译器
+* \<Compiler\>		Compiler编译器
 * \<SymbolTable\>	符号表
-* \<Lexical\>	    词法分析器
-* \<Parse\>		语法分析器
-* \<Expr\>		表达式__语法分析器
-* \<Decl\>		声明__语法分析器
-* \<Stmt\>		控制语句__语法分析器
-* \<Error\>		报错
-* \<RI\>			中间代码生成器 (RI: LLVM)
+* \<Lexical\>	    词法分析
+* \<Parse\>			语法分析——main
+* \<Expr\>			语法分析——表达式
+* \<Decl\>			语法分析——声明
+* \<Stmt\>			语法分析——控制语句
+* \<Error\>			报错
+* \<RI\>			中间代码生成
 Other:
-* \<Tree\>		抽象语法树
-* \<token.h\>     符号
-* \<main.cpp\>	主函数
+* \<Tree\>			抽象语法树
+* \<token.h\>		符号
+* \<main.cpp\>		主函数
 
 ## Achievement
 * 变量声明
@@ -33,7 +33,7 @@ Copyright (c) 1991,1992,1993,1994,1995,1996,1997,1998,1999,2000,2001,2002 by AT&
 Copyright (c) 2020 LiGuer.   
 All Rights Reserved.  
 
-## example
+## Example
 ```
 // Test LiGu's Compiler
 /* 2020-12 */
@@ -46,59 +46,76 @@ int a;
 	int i;
 	while(c < a) c = b + a;
 	for(i = 0; i < 5; i = i + 1){
-		a = a / 27.71 + b * 12E-2 - 2;
-		if(a > d) break;
+		a = a / 27.71 + b * 12E-2 - 2 << 7;
+		if(a > d && a <= c) break;
 		c = c + a;
 		if(c > b) continue;
 		b = b + i;
 	}
 }
-
 ======================================================
-#1 = alloca int 32 align 0
-#2 = alloca int 64 align 0
-#3 = alloca float 64 align 0
-#4 = alloca int 8 align 0
-#5 = alloca float 32 align 0
-#6 = alloca int 32 align 0
+#1	INTEG ALLOC 32 ALIGN 0
+#2	INTEG ALLOC 64 ALIGN 0
+#3	FLOAT ALLOC 64 ALIGN 0
+#4	INTEG ALLOC 8 ALIGN 0
+#5	FLOAT ALLOC 32 ALIGN 0
+#6	INTEG ALLOC 32 ALIGN 0
 
-label 7: 
-#13 = < #4 #2
-ifFalse #13 goto label 8
-#14 = + #3 #2
-store #14 *#4
-goto label 7
+label7: 
+MOV		#13 #4
+LCM		#13 #2
+JMPFalse	#13 label8
+MOV		#14 #3
+ADD		#14 #2
+STORE	#14 *#4
+JMP	label7
 
-label 8:
-store 0 *#6
+label8:
+STORE	0 *#6
 
-label 9: 
-#15 = < #6 5
-ifFalse #15 goto label 10
-#16 = / #2 27.710000
-#17 = * #3 0.120000
-#18 = + #16 #17
-#19 = - #18 2
-store #19 *#2
-#20 = > #2 #5
-ifFalse #20 goto label 11
-goto label 10
+label9: 
+MOV		#15 #6
+LCM		#15 5
+JMPFalse	#15 label10
+MOV		#16 #2
+DIV		#16 27.710000
+MOV		#17 #3
+MUL		#17 0.120000
+MOV		#18 #16
+ADD		#18 #17
+MOV		#19 #18
+SUB		#19 2
+MOV		#20 #19
+LSH		#20 7
+STORE	#20 *#2
+MOV		#21 #2
+GCM		#21 #5
+MOV		#22 #2
+LEC		#22 #4
+MOV		#23 #21
+LOGAND		#23 #22
+JMPFalse	#23 label11
+JMP	label10
 
-label 11: 
-#21 = + #4 #2
-store #21 *#4
-#22 = > #4 #3
-ifFalse #22 goto label 12
-goto label 9
+label11: 
+MOV		#24 #4
+ADD		#24 #2
+STORE	#24 *#4
+MOV		#25 #4
+GCM		#25 #3
+JMPFalse	#25 label12
+JMP	label9
 
-label 12: 
-#23 = + #3 #6
-store #23 *#3
-#24 = + #6 1
-store #24 *#6
-goto label 9
+label12: 
+MOV		#26 #3
+ADD		#26 #6
+STORE	#26 *#3
+MOV		#27 #6
+ADD		#27 1
+STORE	#27 *#6
+JMP	label9
 
-label 10:
+label10:
 
 ```
 

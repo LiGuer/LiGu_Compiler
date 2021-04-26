@@ -21,8 +21,8 @@ limitations under the License.
 #define LEX_H
 #include"sym.h"
 enum {
-#define xx(a,b,c,d,e) a = b,
-#define yy(a,b,c,d,e)
+#define xx(a,b,c,d,e,f) a = b,
+#define yy(a,b,c,d,e,f)
 #include "token.h"
 };
 class Lexical {
