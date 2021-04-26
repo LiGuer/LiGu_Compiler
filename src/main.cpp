@@ -31,11 +31,10 @@ int ArgPos(char* str, int argc, char** argv) {
 	for (int a = 1; a < argc; a++) if (!strcmp(str, argv[a])) {
 		if (a == argc - 1) { printf("Argument missing for %s\n", str); exit(-1); }
 		return a;
-	}
-	return -1;
+	} return -1;
 }
 int main(int argc, char* argv[]) {
-	char inputUrl[1000] = "D:/test.c", outputUrl[1000]= "D:/test.ll";
+	char inputUrl[1000] = "D:/LiGu_Codes/LiGu_Compiler/test/test.c", outputUrl[1000]= "D:/LiGu_Codes/LiGu_Compiler/test/test.ll";
 	/*
 	// input
 	if (argc == 1) {

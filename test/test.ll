@@ -1,44 +1,47 @@
-#1 = alloca int 32 align 0
-#2 = alloca int 64 align 0
-#3 = alloca float 64 align 0
-#4 = alloca int 8 align 0
-#5 = alloca float 32 align 0
-#6 = alloca int 32 align 0
+ALLOC #1 int 32 ALIGN 0
+ALLOC #2 int 64 ALIGN 0
+ALLOC #3 float 64 ALIGN 0
+ALLOC #4 int 8 ALIGN 0
+ALLOC #5 float 32 ALIGN 0
+ALLOC #6 int 32 ALIGN 0
 
-label 7: 
+label7: 
 #13 = < #4 #2
-ifFalse #13 goto label 8
+JMPFalse #13 label8
 #14 = + #3 #2
-store #14 *#4
-goto label 7
+STORE #14 *#4
+JMP label7
 
-label 8:
-store 0 *#6
+label8:
+STORE 0 *#6
 
-label 9: 
+label9: 
 #15 = < #6 5
-ifFalse #15 goto label 10
+JMPFalse #15 label10
 #16 = / #2 27.710000
 #17 = * #3 0.120000
 #18 = + #16 #17
 #19 = - #18 2
-store #19 *#2
-#20 = > #2 #5
-ifFalse #20 goto label 11
-goto label 10
+#20 = << #19 7
+STORE #20 *#2
+#21 = > #2 #5
+#22 = <= #2 #4
+#23 = && #21 #22
+JMPFalse #23 label11
+JMP label10
 
-label 11: 
-#21 = + #4 #2
-store #21 *#4
-#22 = > #4 #3
-ifFalse #22 goto label 12
-goto label 9
+label11: 
+#24 = + #4 #2
+STORE #24 *#4
+#25 = > #4 #3
+JMPFalse #25 label12
+JMP label9
 
-label 12: 
-#23 = + #3 #6
-store #23 *#3
-#24 = + #6 1
-store #24 *#6
-goto label 9
+label12: 
+#26 = + #3 #6
+STORE #26 *#3
+#27 = + #6 1
+STORE #27 *#6
+JMP label9
 
-label 10:
+label10:

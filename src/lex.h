@@ -34,9 +34,17 @@ public:
 		codePos = _codePos; initialCodePos = codePos;
 	}
 	// 数字、a-z大小写
-	bool judgeCharacter(char c) {					
+	inline static bool judgeCharacter(char c) {
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) return false;
 		return true;
+	}
+	inline static bool CodeCmp(const char* code, char*& data) {
+		int index = 0;
+		while (code[index] && code[index] == data[index - 1]) { index++; }
+		if (code[index] == '\0' && judgeCharacter(data[index - 1])) {
+			data += index - 1; return true;
+		}
+		return false;
 	}
 	// 分析下一词
 	char getToken() {
@@ -126,201 +134,47 @@ public:
 				return codePos[-1];
 			//----------------[ A - Z ]----------------
 			case 'b':									//[ B ]
-				if (codePos[0] == 'r'					//break
-					&& codePos[1] == 'e'
-					&& codePos[2] == 'a'
-					&& codePos[3] == 'k'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return BREAK;
-				}
+				if (CodeCmp("break",	codePos)) return BREAK;		//break
 				goto id;
 			case 'c':									//[ C ]
-				if (codePos[0] == 'a'					//case
-					&& codePos[1] == 's'
-					&& codePos[2] == 'e'
-					&& judgeCharacter(codePos[3])) {
-					codePos = codePos + 3;
-					return CASE;
-				}
-				if (codePos[0] == 'h'					//char
-					&& codePos[1] == 'a'
-					&& codePos[2] == 'r'
-					&& judgeCharacter(codePos[3])) {
-					codePos = codePos + 3;
-					return CHAR;
-				}
-				if (codePos[0] == 'l'					//class
-					&& codePos[1] == 'a'
-					&& codePos[2] == 's'
-					&& codePos[3] == 's'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return CLASS;
-				}
-				if (codePos[0] == 'o'					//const
-					&& codePos[1] == 'n'
-					&& codePos[2] == 's'
-					&& codePos[3] == 't'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return CONST;
-				}
-				if (codePos[0] == 'o'					//continue
-					&& codePos[1] == 'n'
-					&& codePos[2] == 't'
-					&& codePos[3] == 'i'
-					&& codePos[4] == 'n'
-					&& codePos[5] == 'u'
-					&& codePos[6] == 'e'
-					&& judgeCharacter(codePos[7])) {
-					codePos = codePos + 7;
-					return CONTINUE;
-				}
+				if (CodeCmp("case",		codePos)) return CASE;		//case
+				if (CodeCmp("char",		codePos)) return CHAR;		//char
+				if (CodeCmp("class",	codePos)) return CLASS;		//class
+				if (CodeCmp("class",	codePos)) return CLASS;		//class
+				if (CodeCmp("const",	codePos)) return CONST;		//const
+				if (CodeCmp("continue",	codePos)) return CONTINUE;	//continue
 				goto id;
 			case 'd':								//[ D ]
-				if (codePos[0] == 'e'					//default
-					&& codePos[1] == 'f'
-					&& codePos[2] == 'a'
-					&& codePos[3] == 'u'
-					&& codePos[4] == 'l'
-					&& codePos[5] == 't'
-					&& judgeCharacter(codePos[6])) {
-					codePos = codePos + 6;
-					return DEFAULT;
-				}
+				if (CodeCmp("default",	codePos)) return DEFAULT;	//default
 				goto id;
 			case 'e':									//[ E ]
-				if (codePos[0] == 'l'					//else
-					&& codePos[1] == 's'
-					&& codePos[2] == 'e'
-					&& judgeCharacter(codePos[3])) {
-					codePos = codePos + 3;
-					return ELSE;
-				}
-				if (codePos[0] == 'n'					//enum
-					&& codePos[1] == 'u'
-					&& codePos[2] == 'm'
-					&& judgeCharacter(codePos[3])) {
-					codePos = codePos + 3;
-					return ENUM;
-				}
-				if (codePos[0] == 'n'					//enum
-					&& codePos[1] == 'u'
-					&& codePos[2] == 'm'
-					&& judgeCharacter(codePos[3])) {
-					codePos = codePos + 3;
-					return ENUM;
-				}
+				if (CodeCmp("else",		codePos)) return ELSE;		//else
+				if (CodeCmp("enum",		codePos)) return ENUM;		//enum
 				goto id;
 			case 'f':									//[ F ]
-				if (codePos[0] == 'l'					//float
-					&& codePos[1] == 'o'
-					&& codePos[2] == 'a'
-					&& codePos[3] == 't'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return FLOAT;
-				}
-				if (codePos[0] == 'l'					//float
-					&& codePos[1] == 'o'
-					&& codePos[2] == 'a'
-					&& codePos[3] == 't'
-					&& codePos[4] == '6'
-					&& codePos[5] == '4'
-					&& judgeCharacter(codePos[6])) {
-					codePos = codePos + 6;
-					return FLOAT64;
-				}
-				if (codePos[0] == 'o'					//for
-					&& codePos[1] == 'r'
-					&& judgeCharacter(codePos[2])) {
-					codePos = codePos + 2;
-					return FOR;
-				}
+				if (CodeCmp("float",	codePos)) return FLOAT;		//float
+				if (CodeCmp("float64",	codePos)) return FLOAT64;	//float64
+				if (CodeCmp("for",		codePos)) return FOR;		//for
 				goto id;
 			case 'i':									//[ I ]
-				if (codePos[0] == 'f'					//if
-					&& judgeCharacter(codePos[1])) {
-					codePos = codePos + 1;
-					return IF;
-				}
-				if (codePos[0] == 'n'					//int
-					&& codePos[1] == 't'
-					&& judgeCharacter(codePos[2])) {
-					codePos = codePos + 2;
-					return INT;
-				}
-				if (codePos[0] == 'n'					//int
-					&& codePos[1] == 't'
-					&& codePos[2] == '6'
-					&& codePos[3] == '4'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return INT64;
-				}
+				if (CodeCmp("if",		codePos)) return IF;		//if
+				if (CodeCmp("int",		codePos)) return INT;		//int
+				if (CodeCmp("int64",	codePos)) return INT64;		//int64
 				goto id;
 			case 'r':									//[ R ]
-				if (codePos[0] == 'e'					//return
-					&& codePos[1] == 't'
-					&& codePos[2] == 'u'
-					&& codePos[3] == 'r'
-					&& codePos[4] == 'n'
-					&& judgeCharacter(codePos[5])) {
-					codePos = codePos + 5;
-					return RETURN;
-				}
+				if (CodeCmp("return",	codePos)) return RETURN;	//return
 				goto id;
 			case 's':									//[ S ]
-				if (codePos[0] == 'h'					//short
-					&& codePos[1] == 'o'
-					&& codePos[2] == 'r'
-					&& codePos[3] == 't'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return SHORT;
-				}
-				if (codePos[0] == 't'					//static
-					&& codePos[1] == 'a'
-					&& codePos[2] == 't'
-					&& codePos[3] == 'i'
-					&& codePos[4] == 'c'
-					&& judgeCharacter(codePos[5])) {
-					codePos = codePos + 5;
-					return STATIC;
-				}
-				if (codePos[0] == 'w'					//switch
-					&& codePos[1] == 'i'
-					&& codePos[2] == 't'
-					&& codePos[3] == 'c'
-					&& codePos[4] == 'h'
-					&& judgeCharacter(codePos[5])) {
-					codePos = codePos + 5;
-					return SWITCH;
-				}
+				if (CodeCmp("short",	codePos)) return SHORT;		//short
+				if (CodeCmp("sizeof",	codePos)) return SIZEOF;	//sizeof
+				if (CodeCmp("static",	codePos)) return STATIC;	//static
+				if (CodeCmp("switch",	codePos)) return SWITCH;	//switch
 				goto id;
 			case 'u':									//[ U ]
-				if (codePos[0] == 'n'					//unsigned
-					&& codePos[1] == 's'
-					&& codePos[2] == 'i'
-					&& codePos[3] == 'g'
-					&& codePos[4] == 'n'
-					&& codePos[5] == 'e'
-					&& codePos[6] == 'd'
-					&& judgeCharacter(codePos[6])) {
-					codePos = codePos + 6;
-					return UNSIGNED;
-				}
+				if (CodeCmp("unsigned",	codePos)) return UNSIGNED;	//unsigned
 				goto id;
 			case 'w':									//[ W ]
-				if (codePos[0] == 'h'					//while
-					&& codePos[1] == 'i'
-					&& codePos[2] == 'l'
-					&& codePos[3] == 'e'
-					&& judgeCharacter(codePos[4])) {
-					codePos = codePos + 4;
-					return WHILE;
-				}
+				if (CodeCmp("while",	codePos)) return WHILE;		//while
 				goto id;
 			case 'a':
 			case 'g': case 'h':			  case 'j': case 'k': case 'l':
@@ -348,5 +202,3 @@ public:
 	}
 };
 #endif
-
-
