@@ -26,21 +26,23 @@ SymbolTable: [1] 符号Hash表 [2] 链表指针
 class Type {
 public:
 	int type = 0;				//类型
-	int size = 0;				//大小
+	int size = 0;				//大小(bit)
 	int sclass;					//类型扩展
 	int align = 0;				//对齐
-	bool constant = false;		//常数
-	bool sign = true;			//正负
+	bool constant = false;		//是否常数
+	bool sign = true;			//是否符号(正负)
 };
 union Value {
 	long long i;
-	double d;
-	void* p;
-	char* s;
+	double    d;
+	void*     p;
+	char*     s;
 };
 class Symbol { 
 public:
-	char* name = NULL;	Type* type = NULL; int label = 0;
+	char* name = NULL;	
+	Type* type = NULL; 
+	int label = 0;
 };
 
 class SymbolTable {
@@ -68,9 +70,9 @@ public:
 		int hash = getHash(name), hash0 = hash;
 		while (symtable[hash].name != NULL && strcmp(symtable[hash].name, name) != 0) {
 			hash = (hash + 1) % 256;
-			if (hash = hash0)return NULL;
+			if (hash = hash0) return NULL;
 		}
-		if (symtable[hash].name == NULL)return NULL;
+		if (symtable[hash].name == NULL) return NULL;
 		return &symtable[hash];
 	}
 	Symbol* searchAllTable(const char* name) {
@@ -84,13 +86,12 @@ public:
 		return NULL;
 	}
 };
-SymbolTable GlobalTable;
+SymbolTable  GlobalTable;
 SymbolTable* SymTablePos = &GlobalTable;
 
 //生成跳转点标号
 int Sym_genLabel(int n) {		
 	static int label = 1;
-	label += n;
-	return label - n;
+	return (label += n) - n;
 }
 #endif

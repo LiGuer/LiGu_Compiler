@@ -36,13 +36,16 @@ public:
 	}
 	/*---------------- 判断数字、a-z大小写 ----------------*/
 	inline static bool judgeCharacter(char c) {
-		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) return false;
+		if ((c >= 'a' && c <= 'z') 
+		 || (c >= 'A' && c <= 'Z') 
+		 || (c >= '0' && c <= '9')) 
+			return false;
 		return true;
 	}
 	/*---------------- 判断指令 ----------------*/
 	inline static bool CodeCmp(const char* code, char*& data) {
 		int index = 0;
-		while (code[index] && code[index] == data[index - 1]) { index++; }
+		while (code[index] && code[index] == data[index - 1]) index++;
 		if (code[index] == '\0' && judgeCharacter(data[index - 1])) {
 			data += index - 1; return true;
 		}
@@ -60,55 +63,49 @@ public:
 			//----------------[ 0 - 9 ]----------------
 			case '0':case '1':case '2':case '3':case '4':
 			case '5':case '6':case '7':case '8':case '9': {
-				char* tmp = codePos - 1;		//整数
+				char* tmp = codePos - 1;					//整数
 				int num = 0;
-				while (*tmp >= '0' && *tmp <= '9') {
-					num = num * 10 + *tmp - '0';
-					tmp++;
-				}
-				if (*tmp == '.' || *tmp == 'e' || *tmp == 'E')goto REAL;
+				while (*tmp >= '0' && *tmp <= '9')
+					num = num * 10 + *(tmp++) - '0';
+				if (*tmp == '.' || *tmp == 'e' || *tmp == 'E') goto REAL;
 				codePos = tmp;
 				buffer.i = num;
 				return NUM;
-			}REAL: {								//实数
-				char* temp = codePos - 1;
+			}REAL: {										//实数
+				char* tmp = codePos - 1;
 				double real = 0;
-				while (*temp >= '0' && *temp <= '9') {
-					real = real * 10 + *temp - '0';
-					temp++;
-				}
-				if (*temp == '.') {					//小数点
-					temp++; double cur = 0.1;
-					while (*temp >= '0' && *temp <= '9') {
-						real += (*temp - '0') * cur;
+				while (*tmp >= '0' && *tmp <= '9') 
+					real = real * 10 + *(tmp++) - '0';
+				if (*tmp == '.') {							//小数点
+					tmp++; double cur = 0.1;
+					while (*tmp >= '0' && *tmp <= '9') {
+						real += (*(tmp++) - '0') * cur;
 						cur *= 0.1;
-						temp++;
 					}
 				}
-				else if (*temp == 'e' || *temp == 'E') {	//科学计数法
-					temp++; double cur = 1, flag = 1;
-					if (*temp == '-') { flag = -1; temp++; }
-					else if (*temp == '+') temp++;
-					while (*temp >= '0' && *temp <= '9') {
-						int i = *temp - '0';
+				else if (*tmp == 'e' || *tmp == 'E') {		//科学计数法
+					tmp++; double cur = 1, flag = 1;
+					if     (*tmp == '-') { tmp++; flag = -1;  }
+					else if(*tmp == '+')   tmp++;
+					while  (*tmp >= '0' && *tmp <= '9') {
+						int i = *(tmp++) - '0';
 						while (i--)cur *= 10;
-						temp++;
 					}
 					if (flag == -1)cur = 1 / cur;
 					real *= cur;
 				}
-				codePos = temp;
+				codePos = tmp;
 				buffer.d = real;
 				return REAL;
 			}
 			//----------------[ 运算符 ]----------------
 			case '<':
-				if (*codePos == '=')return codePos++, LEQ;			// <=
-				if (*codePos == '<')return codePos++, LSHIFT;		// <<
+				if (*codePos == '=') return codePos++, LEQ;			// <=
+				if (*codePos == '<') return codePos++, LSHIFT;		// <<
 				return '<';											// <
 			case '>':
-				if (*codePos == '=')return codePos++, GEQ;			// >=
-				if (*codePos == '>')return codePos++, RSHIFT;		// >>
+				if (*codePos == '=') return codePos++, GEQ;			// >=
+				if (*codePos == '>') return codePos++, RSHIFT;		// >>
 				return '>';											// <
 			case '/':
 				if (*codePos == '/') {								// "//"
@@ -121,12 +118,12 @@ public:
 					continue;
 				}
 				else return '/';									// "/"
-			case '+':return *codePos == '+' ? codePos++, ADDONE : '+';	// ++ , +
-			case '-':return *codePos == '-' ? codePos++, SUBONE : '-';	// -- , -
-			case '=':return *codePos == '=' ? codePos++, EQL : '=';	// == , =
-			case '!':return *codePos == '=' ? codePos++, NQL : '!';	// != , !
-			case '&':return *codePos == '&' ? codePos++, ANDAND : '&';	// && , &
-			case '|':return *codePos == '|' ? codePos++, OROR : '|';	// || , |
+			case '+': return *codePos == '+' ? codePos++, ADDONE : '+';	// ++ , +
+			case '-': return *codePos == '-' ? codePos++, SUBONE : '-';	// -- , -
+			case '=': return *codePos == '=' ? codePos++, EQL    : '=';	// == , =
+			case '!': return *codePos == '=' ? codePos++, NQL    : '!';	// != , !
+			case '&': return *codePos == '&' ? codePos++, ANDAND : '&';	// && , &
+			case '|': return *codePos == '|' ? codePos++, OROR   : '|';	// || , |
 			case '*':case '^':case '%':								// * , ^ , %
 			case ',':case ':':case ';':								// , , : , ;
 			case '(':case ')':case '[': case ']': case '{': case '}'://括号 () , [] , {}
@@ -187,12 +184,11 @@ public:
 			case 'Y': case 'Z':
 			id: {										//变量
 				static const int maxNameLen = 100;
-				buffer.s = (char*)malloc(maxNameLen * sizeof(char));
+				buffer.s = (char*)calloc(maxNameLen, sizeof(char));
 				int cur = 0;
-				while (!judgeCharacter(*(codePos + cur - 1))) {
-					buffer.s[cur++] = *(codePos + cur - 1);
-				}buffer.s[cur] = '\0';
-				codePos = codePos + cur - 1;
+				while (!(judgeCharacter(codePos[cur - 1]) || codePos[cur - 1] == '_'))
+					buffer.s[cur++] = codePos[cur - 1];
+				codePos += cur - 1;
 				return ID;
 			}
 			default: continue;

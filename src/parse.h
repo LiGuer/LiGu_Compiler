@@ -28,8 +28,9 @@ public:
 	Error* error;
 	Stmt* stmt;
 	Parse(Lexical* _lexical, Error* _error) {
-		lexical = _lexical; error = _error;
-		stmt = new Stmt(lexical, error);
+		lexical = _lexical; 
+		error   = _error;
+		stmt    = new Stmt(lexical, error);
 	}
 	/*--------------------------------[ 语法分析器(主) ]--------------------------------*/
 	Tree* parse() {

@@ -29,22 +29,22 @@ limitations under the License.
 #include "dag.h"
 class Decl {
 public:
-	Lexical* lexical;
+	Lexical* lex;
 	Error* error;
-	Decl(Lexical* _lexical, Error* _error) { lexical = _lexical; error = _error; }
+	Decl(Lexical* _lex, Error* _error) { lex = _lex; error = _error; }
 	/*--------------------------------[ 声明分析 ]--------------------------------*/
 	Tree* decl() {
 		Type* ty = specifier();
-		if (ty == NULL)return NULL;
-		if (lexical->token != ID)error->error("Decl Not Find Identifier!");
+		if (ty == NULL) return NULL;
+		error->error(lex->token != ID, "Decl Not Find Identifier!");
 		// Symbol
-		Symbol id{ lexical->buffer.s, ty ,Sym_genLabel(1) };
-		if(SymTablePos->insert(id) == false)error->error("ID had exsited!");
+		Symbol id{ lex->buffer.s, ty ,Sym_genLabel(1) };
+		error->error(SymTablePos->insert(id) == false, "ID had exsited!");
 		// Tree
 		Tree* p = new Tree;
-		p->u.sym = SymTablePos->search(lexical->buffer.s);
-		p->op = ty->type;
-		lexical->getToken();
+		p->u.sym = SymTablePos->search(lex->buffer.s);
+		p->op    = ty->type;
+		lex->getToken();
 		error->expect(';');
 		return p;
 	}
@@ -54,22 +54,22 @@ public:
 		Type* ty = new Type;
 		while (true) {
 			bool flag = 0;
-			switch (lexical->token) {
-			case BOOL: ty->size = 1; ty->type = INT; break;
-			case CHAR: ty->size = 1 * Byte; ty->type = INT; break;
-			case SHORT:ty->size = 2 * Byte; ty->type = INT; break;
-			case INT: ty->size = 4 * Byte; ty->type = INT; break;
-			case INT64: ty->size = 8 * Byte; ty->type = INT; break;
-			case FLOAT: ty->size = 4 * Byte; ty->type = FLOAT; break;
-			case FLOAT64: ty->size = 8 * Byte; ty->type = FLOAT; break;
-			case STATIC: ty->sclass = STATIC; break;
-			case CONST: ty->constant = true; break;
-			case UNSIGNED: ty->sign = false; break;
-			case VOID: ty->type = VOID; break;
-			default: flag = 1; break;
+			switch (lex->token) {
+			case BOOL:		ty->size = 1;			ty->type = INT;		break;
+			case CHAR:		ty->size = 1 * Byte;	ty->type = INT;		break;
+			case SHORT:		ty->size = 2 * Byte;	ty->type = INT;		break;
+			case INT:		ty->size = 4 * Byte;	ty->type = INT;		break;
+			case INT64:		ty->size = 8 * Byte;	ty->type = INT;		break;
+			case FLOAT:		ty->size = 4 * Byte;	ty->type = FLOAT;	break;
+			case FLOAT64:	ty->size = 8 * Byte;	ty->type = FLOAT;	break;
+			case STATIC:	ty->sclass = STATIC;						break;
+			case CONST:		ty->constant = true;						break;
+			case UNSIGNED:	ty->sign = false;							break;
+			case VOID:		ty->type = VOID;							break;
+			default: flag = 1;											break;
 			}
-			if (flag)break;
-			lexical->getToken();
+			if (flag) break;
+			lex->getToken();
 		}
 		if (ty->type == 0) { delete ty; ty = NULL; }
 		return ty;

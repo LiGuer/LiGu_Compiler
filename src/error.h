@@ -24,6 +24,14 @@ public:
 	Lexical* lexical;
 	Error(Lexical* _lexical) { lexical = _lexical; }
 	// error
+	void error(bool flag,const char* err, ...) {
+		if (!flag) return;
+		printf("error %d: %s in %d.\n", errorNum, err, lexical->codePos - lexical->initialCodePos);
+		if (errorNum++ >= maxErrorNum) {
+			printf("Too many errors\n");
+			exit(1);
+		}
+	}
 	void error(const char* err, ...) {
 		printf("error %d: %s in %d.\n", errorNum, err, lexical->codePos - lexical->initialCodePos);
 		if (errorNum++ >= maxErrorNum) {

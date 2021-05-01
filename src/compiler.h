@@ -22,15 +22,15 @@ limitations under the License.
 #include"IR.h"
 class Compiler {
 public:
-	Error* error;
+	Error*   error;
 	Lexical* lexical;
-	Parse* parse;
+	Parse*   parse;
 	IR* ir;
 
 	Compiler(char* codePos){
 		lexical = new Lexical(codePos);
-		error = new Error(lexical);
-		parse = new Parse(lexical, error);
+		error   = new Error(lexical);
+		parse   = new Parse(lexical, error);
 		ir = new IR;
 	}
 	void compiler(char* output) {

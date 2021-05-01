@@ -38,19 +38,19 @@ limitations under the License.
 class Stmt {
 public:
 	Lexical* lexical;
-	Error* error;
-	Expr* expr;
-	Decl* decl;
+	Error*   error;
+	Expr*    expr;
+	Decl*    decl;
 	Stmt(Lexical* _lexical, Error* _error) { 
 		lexical = _lexical; 
-		error = _error;
+		error   = _error;
 		expr = new Expr(lexical, error);
 		decl = new Decl(lexical, error);
 	}
 	/*--------------------------------[ stmts ]--------------------------------*/
 	Tree* stmts(int looplabel) {
-		Tree* tree = new Tree;
-		Tree* root = tree;
+		Tree* tree = new Tree,
+			* root = tree;
 		while (lexical->token == '{' || lexical->token < 18 || lexical->token == ID || (lexical->token >= 65 && lexical->token <= 75)) {
 			Tree* p = stmt(looplabel);
 			tree->kid[0] = p;
@@ -63,24 +63,24 @@ public:
 	Tree* stmt(int looplabel) {
 		Tree* p = new Tree;
 		switch (lexical->token) {
-		case '{':	p = block(looplabel); break;
+		case '{':	p = block(looplabel);							break;
 		case BREAK: {
 			p->op = BREAK;
 			p->u.v.i = looplabel + 1;
 			lexical->getToken(); error->expect(';');
-		}; break;
+		};															break;
 		case CONTINUE: {
 			p->op = BREAK;
 			p->u.v.i = looplabel;
 			lexical->getToken(); error->expect(';');
-		}; break;
-		case FOR:	p = stmtFor(Sym_genLabel(2)); break;
-		case GOTO:; break;
-		case ID:	p = expr->expr(); error->expect(';'); break;
-		case IF:	p = stmtIf(Sym_genLabel(1), looplabel); break;
-		case SWITCH:p = stmtSwitch(Sym_genLabel(1), looplabel); break;
-		case WHILE:	p = stmtWhile(Sym_genLabel(2)); break;
-		case 1:case 2:case 3:case 4:case 5:case 6:case 7:case 8:case 9:
+		};															break;
+		case FOR:	p = stmtFor		(Sym_genLabel(2));				break;
+		case GOTO: ;												break;
+		case ID:	p = expr->expr(); error->expect(';');			break;
+		case IF:	p = stmtIf		(Sym_genLabel(1), looplabel);	break;
+		case SWITCH:p = stmtSwitch	(Sym_genLabel(1), looplabel);	break;
+		case WHILE:	p = stmtWhile	(Sym_genLabel(2));				break;
+		case  1:case  2:case  3:case  4:case  5:case  6:case  7:case  8:case  9:
 		case 10:case 11:case 12:case 13:case 14:case 15:case 16:case 17:
 			p = decl->decl(); break;
 		default:; break;
@@ -105,8 +105,8 @@ public:
 	Tree* stmtFor(int newlable) {
 		lexical->getToken();
 		error->expect('(');
-		Tree* p = new Tree;
-		Tree* root = p;
+		Tree* p = new Tree,
+			* root = p;
 		p->kid[0] = expr->expr();
 		p->kid[1] = new Tree;
 		p = p->kid[1];
@@ -114,12 +114,9 @@ public:
 		p->u.v.i = newlable;
 		error->expect(';');
 		//
-		p->kid[0] = expr->expr();
-		error->expect(';');
-		p->kid[1] = new Tree;
-		p = p->kid[1];
-		p->kid[1] = expr->expr();
-		error->expect(')');
+		p->kid[0] = expr->expr();	error->expect(';');
+		p->kid[1] = new Tree;		p = p->kid[1];
+		p->kid[1] = expr->expr();	error->expect(')');
 		p->kid[0] = stmt(newlable);
 		return root;
 	}
