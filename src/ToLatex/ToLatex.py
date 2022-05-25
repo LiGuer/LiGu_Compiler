@@ -4,7 +4,8 @@ import math
 import os
 import random
 import sys
-from Formulas import Formulas
+from Formulas import *
+from Codes import *
 
 # 简单命令
 def EasyCode(Str):
@@ -102,6 +103,88 @@ def Section(Str):
 
 # txt -> Latex 函数
 def ToLatex(Str):
+	# 公式
+	[Str, InterLineFormulas, InLineFormulas] = DetectFormulas(Str)
+
+	for i in range(0, len(InterLineFormulas)):
+		InterLineFormulas[i] = FormulasInterLine(InterLineFormulas[i])
+
+	for i in range(0, len(InLineFormulas)):
+		InLineFormulas[i] = FormulasInLine(InLineFormulas[i])
+
+	# 代码
+	[Str, CodesSet] = DetectCodes(Str)
+
+	for i in range(0, len(CodesSet)):
+		CodesSet[i] = Codes(CodesSet[i])
+
+	# 简单命令
+	Str = '\n' + Str + '\n' 
+	Str = re.sub(r'\n\s*\n', r'\n', Str)
+	
+	Str = EasyCode(Str)		# 简单命令
+	# Str = Section(Str)		# 章节标题
+	Str = Item(Str)		# 列表
+
+	# Other
+	Str = re.sub(r'\n', r'\\par\n', Str)
+	Str = re.sub(r'\\begin{itemize}\\par', r'\\begin{itemize}', Str)
+	Str = re.sub(r'\\end{itemize}\\par', r'\\end{itemize}', Str)
+
+	# 公式、代码 插回
+
+	while(1):
+		tmp = re.search(r'@\(InterLineFormulas_', Str)
+		if (tmp == None): 
+			break
+
+		a = tmp.span()[0]
+		b = tmp.span()[1]
+
+		tmp = re.search(r'_InterLineFormulas\)@', Str)
+		c = tmp.span()[0]
+		d = tmp.span()[1]
+
+		Str = Str[:a] + InterLineFormulas[int(Str[b:c])] + Str[d:]
+
+
+	while(1):
+		tmp = re.search(r'@\(InLineFormulas_', Str)
+		if (tmp == None): 
+			break
+
+		a = tmp.span()[0]
+		b = tmp.span()[1]
+
+		tmp = re.search(r'_InLineFormulas\)@', Str)
+		c = tmp.span()[0]
+		d = tmp.span()[1]
+
+		Str = Str[:a] + InLineFormulas[int(Str[b:c])] + Str[d:]
+
+
+	while(1):
+		tmp = re.search(r'@\(Codes_', Str)
+		if (tmp == None): 
+			break
+
+		a = tmp.span()[0]
+		b = tmp.span()[1]
+
+		tmp = re.search(r'_Codes\)@', Str)
+		c = tmp.span()[0]
+		d = tmp.span()[1]
+
+		Str = Str[:a] + CodesSet[int(Str[b:c])] + Str[d:]
+
+	# 文件头
+	file = open("head.tex","r", encoding='utf-8')
+	Str = file.read() + Str + "\n\\end{document}"
+	file.close()
+
+	return Str
+
+def ToLatex__(Str):
 	Str = '\n' + Str + '\n' 
 	Str = re.sub(r'\n\s*\n', r'\n', Str)
 	
@@ -109,9 +192,11 @@ def ToLatex(Str):
 	# Str = Section(Str)		# 章节标题
 	Str = Item(Str)		# 列表
 	Str = Formulas(Str)		# 公式
+	Str = Codes(Str)		# 代码
 
 	# Other
 	Str = re.sub(r'\n', r'\\par\n', Str)
+	Str = re.sub(r'@NOPAR\\par', r'', Str)
 	Str = re.sub(r'\\\\\\par', r'\\\\', Str)
 	Str = re.sub(r'\\begin{itemize}\\par', r'\\begin{itemize}', Str)
 	Str = re.sub(r'\\end{itemize}\\par', r'\\end{itemize}', Str)
