@@ -182,6 +182,9 @@ def ToLatex(Str):
 	Str = file.read() + Str + "\n\\end{document}"
 	file.close()
 
+	# 补丁
+	Str = re.sub(r'\\end\{align\*\}\n\n\\par', r'\\end{align*}\n', Str)
+
 	return Str
 
 def ToLatex__(Str):

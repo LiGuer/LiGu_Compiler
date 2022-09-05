@@ -19,13 +19,13 @@ def Formulas(Str):
 	MathSymbol = [
 		'≥', '≤', '≠', '⪰', '⪯',
 		'×', '~', '∂', '∇', '\|\|', '%', 
-		' => ', '\t=> ', ' <=> ', 
+		' => ', '\n=> ', '\t=> ', ' <=> ', '\n<=> ', '\t<=> ',
 		r'\\\.'
 	]
 	MathSymbolLatex = [
 		r'\\ge ', r'\\le ', r'\\neq ', r'\\succeq ', r'\\preceq ',
 		r'\\times ', r'\\sim ', r'\\partial ', r'\\nabla ', r'\\| ', r'\\% ', 
-		r' \\Rightarrow ', r'\t\\Rightarrow ', r' \\Leftrightarrow ',
+		r' \\Rightarrow ', r'\n\\Rightarrow ', r'\t\\Rightarrow ', r' \\Leftrightarrow ', r'\n\\Leftrightarrow ', r'\t\\Leftrightarrow ',
 		r'\\boldsymbol '
 		]
 
@@ -48,15 +48,16 @@ def Formulas(Str):
 	Str = re.sub(r'\n', r'\\\\\n', Str)
 	Str = re.sub(r'\\begin\{matrix\}\\\\\n', r'\\begin{matrix}\n', Str)
 
-	Str = re.sub(r'(\S)\/(\S)', lambda m: '\\frac{' + m.group(1) + '}{' + m.group(2) + '}', Str)
-
 	Str = re.sub(r'\\l ', r'\\left ', Str)
 	Str = re.sub(r'\\r ', r'\\right ', Str)
 	Str = re.sub(r'\\sum_', r'\\sum\\limits_', Str)
 	Str = re.sub(r'\\prod_', r'\\prod\\limits_', Str)
+	Str = re.sub(r'\\cap_', r'\\bigcap_', Str)
+	Str = re.sub(r'\\cup_', r'\\bigcup_', Str)
 	
 	Str = re.sub(r'\\d ', r'\\mathrm d ', Str)
 	Str = re.sub(r'\\/', r'\\frac', Str)
+	Str = re.sub(r'(\S)\/(\S)', lambda m: '\\frac{' + m.group(1) + '}{' + m.group(2) + '}', Str)
 	
 	Str = re.sub(r'\\qu', r'\\quad', Str)
 	Str = re.sub(r'\\quadad', r'\\quad', Str)
@@ -68,8 +69,11 @@ def Formulas(Str):
 
 def FormulasInterLine(Str):
 	Str = Formulas(Str)
-	Str = re.sub(r'\$', r'\\begin{align*}', Str, count=1)
+	Str = re.sub(r'\$\s*', r'\\begin{align*}', Str, count=1)
 	Str = re.sub(r'\$\\\\', r'\\end{align*}\n', Str)
+
+	Str = re.sub(r'\\begin\{align\*\}\\\\', r'\\begin{align*}', Str, count=1)
+	Str = re.sub(r'\\\\\n\\end\{align\*\}', r'\n\\end{align*}', Str, count=1)
 
 	return Str
 
@@ -104,12 +108,13 @@ def DetectFormulas(Str):
 		c = tmp.span()[0]
 		d = tmp.span()[1]
 
-		formulas = Str[b-2:d + b + 1]
+		formulas = Str[b-1:d + b]
 		formulas = re.sub(r'\t', '', formulas)
 		InterLineFormulas = InterLineFormulas + [formulas]
 
-		Str = Str[:b-2] + "@(InterLineFormulas_" + str(ind) +"_InterLineFormulas)@\n" + Str[d+b+1:]
+		Str = Str[:b-1] + "@(InterLineFormulas_" + str(ind) +"_InterLineFormulas)@\n" + Str[d+b:]
 		ind = ind + 1
+		
 
 	# In Line Formulas
 	InLineFormulas = []
