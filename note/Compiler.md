@@ -40,6 +40,8 @@
 
 * Top-down parsing
   * LL(k) parsers
+    - Eliminate Left Recursion
+    - Removing Common Left Factoring 
 
 * Bottom-up parsing
   * LR parsers
